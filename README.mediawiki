@@ -16,13 +16,13 @@ The JavaScript files in the selected userscripts folder run in alphabetical orde
 # __tools.js, some debugging function and anything that does not match into the functional approach of F.js
 # _data...js, some large and static variable definitions for the gadgets
 # _editexternals.js, a script that allows you testing your code on other websites
-# and then a bunch of more-or-less unrelated single scripts, including [[wp/api|api.js]], gadgets.js, [[wp/interactive|interactive.js]]  and many more.
+# and then a bunch of more-or-less unrelated single scripts, including [[wp/tree/master/api|api.js]], gadgets.js, [[wp/tree/master/interactive|interactive.js]]  and many more.
 
 == init.js ==
 
 In this section I'm gonna explain you the structure of my scripts environment.
 
-Every of my files is wrapped in a [http://benalman.com/news/2010/11/immediately-invoked-function-expression/ <abbr title="Immidiately Executed Anonymous Function Expression">IEAFE</abbr>] to avoid global namespace pollution.
+Every of my files is wrapped in a <abbr title="Immidiately Executed Anonymous Function Expression">[http://benalman.com/news/2010/11/immediately-invoked-function-expression/ IEAFE]</abbr> to avoid global namespace pollution.
 The init.js is the first script which is executed immidiately after a new browsing context (e.g. a tab) is opened. So, what it does is approximately
 
 <pre>
