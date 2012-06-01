@@ -16,7 +16,7 @@ The JavaScript files in the selected userscripts folder run in alphabetical orde
 # __tools.js, some debugging function and anything that does not match into the functional approach of F.js
 # _data...js, some large and static variable definitions for the gadgets
 # _editexternals.js, a script that allows you testing your code on other websites
-# and then a bunch of more-or-less unrelated single scripts, including [[/api|api.js]], gadgets.js, [[/interactive|interactive.js]]  and many more.
+# and then a bunch of more-or-less unrelated single scripts, including [[api|api.js]], gadgets.js, [[interactive|interactive.js]]  and many more.
 
 == init.js ==
 

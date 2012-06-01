@@ -1,8 +1,50 @@
-﻿This is my Api implementation for a MediaWiki Api.
+﻿(function(){ if(typeof window.usg.MEDIAWIKISCRIPT != 'undefined') window.usg.MEDIAWIKISCRIPT.push("api"); else return;
+var oldStartUp;
+Object.defineProperty(window,"startUp", {
+	get: function() {
+		return function() {
+			oldStartUp();
+			localStartUp(mediaWiki, jQuery);
+		};
+	},
+	set: function(n) {
+		oldStartUp=n;
+	},
+	configurable: true,
+	enumerable: true
+});
+window.localStartUp = function(mw, jq) {
 
-It is more or less standalone, i.e. it does not need a Mediawiki environment to run.
-It does not need jQuery or any RessourceLoader modules, it even should work without a global <code>mediawiki</code> object (Although it lives in the <code>mw</code> namespace).
-Yet, is has its dependencies to my <code>Promise</code> implementation, to the native-object-extensions of <code>F.js</code> and even some to tools.js.
+/*
+* assign in here to:
+* 
+* mw.Api
+* mw.Api.serializeQuery
+* mw.Api.Settings
+* mw.Api.prototype
+*                 .promise
+*                 .stream
+*                 .query
+*                 .act
+*                 .edit
+* mw.Api.handleMaxlag
+* mw.Api.Query
+* mw.Api.Query.prototype
+*                       .parameters
+*                       .toString
+*                        .validateParams
+*                        .getQueryParams
+*                       .getParams
+*                       .getRequests
+*                       .maximizeLimits
+*                       .toGenerator
+* mw.Api.Bot
+* mw.Api.Bot.prototype
+*                     .edit
+*                     .replaceTemplate
+*                     .wikitext.formatTemplate
+*/
 
-I currently use it with this [[wrapper.js|wrapper script]] in my userscripts, so that it overwrites the current "native" mw.Api object on a MediaWiki site.
-Yet I plan to merge the two - I hope it works, I don't think jQuery's deferred will be enough for the task of my Query methods.
+Object.defineProperty(mw, "Api", {writable:false});
+Object.defineProperty(mw.Api, "prototype", {writable:false});
+}})(); // end localstartup // end MEDIAWIKISCRIPT local function
