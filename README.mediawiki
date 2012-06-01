@@ -1,0 +1,8 @@
+﻿Welcome to [[mw:User:✓|my]] Wikipedia Script Repository!
+
+I've started coding long, long times ago with some very simple <code>monobook.js</code> experiments.
+Soon, I got tired in the online editing, saving, cache-purging, testing cirlce and wanted a faster developing experience, so I started with [http://www.opera.com/docs/userjs/ Opera's userscript feature].
+
+Today I'm running thousands of lines of local code (with less blank lines :-) in my browser, all to the greater aim of making my Wikipedia experience smoother.
+And now I think that sharing this code might be a good idea, having you profiting of it. Of course, many things are feeble, outdated, and too localized, but you also will find some pearls.
+Those pearls I'm gonna present also at [http://www.mediawiki.org/w/index.php?title=User:%E2%9C%93/scripts mediawiki.org], but before merging the greatest of them right into the MediaWiki software itself I feel I should show what I've come up with so far.
