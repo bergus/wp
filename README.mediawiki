@@ -10,10 +10,155 @@ Those pearls I'm gonna present also at [http://www.mediawiki.org/w/index.php?tit
 == Overview ==
 
 The JavaScript files in the selected userscripts folder run in alphabetical order. So what I have are
-# [[#init|___init.js]] 
+# [[#init.js|___init.js]] 
 # __functional.js, a unified version of my [[../../../F|F library]]  where I also test and hotfix new features
 # __promise.js, the working and testing bench for the Promise library from F.js
 # __tools.js, some debugging function and anything that does not match into the functional approach of F.js
 # _data...js, some large and static variable definitions for the gadgets
 # _editexternals.js, a script that allows you testing your code on other websites
 # and then a bunch of more-or-less unrelated single scripts, including [[/api|api.js]], gadgets.js, [[/interactive|interactive.js]]  and many more.
+
+== init.js ==
+
+In this section I'm gonna explain you the structure of my scripts environment.
+
+Every of my files is wrapped in a [http://benalman.com/news/2010/11/immediately-invoked-function-expression/ <abbr title="Immidiately Executed Anonymous Function Expression">IEAFE</abbr>] to avoid global namespace pollution.
+The init.js is the first script which is executed immidiately after a new browsing context (e.g. a tab) is opened. So, what it does is approximately
+
+<pre>
+(function(){
+window.usg = {}; // install the UserScriptGlobal namespace
+window.usg.Timer = function() {
+	var st = new Date().getTime();
+	this.end = function() {
+		return new Date().getTime() - st;
+	};
+};
+var uhr_allscript = new window.usg.Timer(); // start a timer
+
+if (location.href.indexOf("wiki") > -1) window.usg.MEDIAWIKISCRIPT = ["init"]; // check if we have a wiki around
+
+if (window.location.href.indexOf("cid:op.mhtml") == 0 || window.location.href.indexOf(".mht") == -1) { // in webarchiven nur einmal laden
+	document.addEventListener("DOMContentLoaded", userscript, false); // Install a DOMready handler
+} else {
+	var css = document.createElement("style");
+	css.type = "text/css";
+	css.src = "file://localhost/<fakepath>/user.css";
+	document.getElementsByTagName("head")[0].appendChild(css); // add my user styles manually
+}
+
+function userscript() {
+	// simple CSS highlighter, activate with appending sic=0 or sic=1 url parameter
+	if(location.search && location.search.match(/[?&]sic=(\d)(&|$)/)) {
+		css = document.createElement("style");
+		css.type = "text/css";
+		var cssv = [
+			'* {position:relative;} *:before {content:"(#"attr(id)"."attr(class)")"; color:#F00; background-color:#090; position:absolute; left:-1px; top:-1px; font-size:7px; line-height:7px; font-family: monospace; whitespace:no-wrap;}',
+			':before {content:"(#"attr(id)"."attr(class)")"; color:#F00; background-color:#090; font-size:7px; line-height:7px; font-family: monospace; whitespace:no-wrap;}'
+		];
+		css.appendChild(document.createTextNode(cssv[location.search.match(/[?&]sic=(\d)(&|$)/)[1]]));
+		document.getElementsByTagName("head")[0].appendChild(css);
+	}
+	
+	svgkorrekt();
+
+	if (typeof wgServer=="undefined" || typeof wgUserName=="undefined"
+		|| wgServer!="//de.wikipedia.org" && wgServer!="//test2.wikipedia.org" 
+		|| wgUserName!="✓" //&& wgUserName!="Bergbot"
+		|| skin != "monobook"
+		|| location.search.contains("useskin=monobook")
+	) return; // Dont go any further when something looks not like me on a MediaWiki
+	
+	var uhr_wikiscript = new window.usg.Timer();
+	
+	window.addWikiCSS = function(name, notlocale) {
+		var css = document.createElement("link");
+		css.rel = "stylesheet";
+		css.type = "text/css";
+		css.href = "http://localhost/html/myskin/"+name+".css"; // file protocol won't work, I had to install a local Apache
+		document.head.appendChild(css);
+	}
+	
+	/* AND NOW ACTIVATE ALL THE OTHER MODULS (each in it's own try-catch block) */
+	var al = new Array(), x;
+	
+	msg = ["wikigadgets"];
+	if(wikigadgets && typeof wikigadgets.length == "number") {
+		x = [];
+		for (var i=0, l=wikigadgets.length; i<l; i++)
+			//try{
+				x.push(wikigadgets[i]());
+			//}catch(e) { x.push("["+i+"] abgestürzt ("+e+")"); }
+		msg.push( x.every(function(v){return v;})
+			? "aktiviert"
+			: (x.some(function(v){return typeof v=="string";})
+				? x.filter(function(v){return typeof v=="string";}).join("\n")
+				: "gestartet"
+		));
+	} else msg.push(typeof sourcecode);
+	al.push(msg);
+	
+	var msg = ["interactive"];
+	if(typeof ia.interactive == "function") {
+		try{
+			if (skin==="monobook") {
+				x = ia.interactive();
+				msg.push((x === false)?"nicht ausgeführt":"aktiviert");
+			} else {
+				msg.push("wegen falschem Skin nicht aktiviert");
+			}
+		}catch(e) { msg.push("abgestürzt ("+e+")"); }finally{ console.groupEnd(); }
+	} else msg.push(typeof ia.interactive);
+	al.push(msg);
+	
+	msg = ["konsole"];
+	if(typeof konsole.init == "function") {
+		try{
+			x = konsole.init();
+			msg.push((x === false)?"nicht ausgeführt":"aktiviert");
+		}catch(e) { msg+= "abgestürzt ("+e+")"; }
+	} else msg.push(typeof konsole.init);
+	al.push(msg);
+	
+	msg = ["wikiforms"];
+	if(typeof wikiform.init == "function") {
+		try{
+			x = wikiform.init();
+			msg.push((x === false)?"nicht ausgeführt":"aktiviert");
+		}catch(e) { msg.push("abgestürzt ("+e+")"); }
+	} else msg.push(typeof wikiform.init);
+	al.push(msg);
+		
+	msg = ["newreferences"];
+	if(typeof references.execute == "function") {
+		try{
+			x = references.execute();
+			references.vorschau();
+			msg.push((x === false)?"nicht ausgeführt":"aktiviert");
+		}catch(e) { msg.push("abgestürzt ("+e+")"); }
+	} else msg.push(typeof references.execute);
+	al.push(msg);
+	
+	try{
+		for (var i=0;i<al.length;i++) {
+			switch(al[i][1]) {
+				case "aktiviert":
+				case "gestartet": farbe = "green"; break;
+				case "nicht ausgeführt": farbe = "#00E"; break; 
+				case "wegen falschem Skin nicht aktiviert": farbe = "black"; break;
+				default: if (al[i][1].indexOf("abgestürzt") == 0) {
+								window.opera.postError("!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!_!\n"+al[i][0]+" "+al[i][1]);
+								farbe = "red";
+							} else
+								farbe = "black";
+			}
+			konsole.show(al[i][0], farbe);
+		}
+	}catch (e) {
+		alertabout(al,e+"\nmodule", 1);
+	}
+	konsole.show(uhr_allscript.end()+"ms Seite, "+uhr_wikiscript.end()+"ms Wiki", "red");
+};
+
+})();
+</pre>
