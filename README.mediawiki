@@ -10,7 +10,7 @@ Those pearls I'm gonna present also at [http://www.mediawiki.org/w/index.php?tit
 == Overview ==
 
 The JavaScript files in the selected userscripts folder run in alphabetical order. So what I have are
-# [[#init|___init.js]]
+# [[#init|___init.js]] 
 # __functional.js, a unified version of my [[../F|F library]] where I also test and hotfix new features
 # __promise.js, the working and testing bench for the Promise library from F.js
 # __tools.js, some debugging function and anything that does not match into the functional approach of F.js
